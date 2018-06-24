@@ -20,8 +20,7 @@ import pandas as pd
 # import distances
 import termcolor
 import argparse
-
-import Analyze_file_info
+import parse_file_info
 
 
 
@@ -335,7 +334,7 @@ def analyze_ci_condensation(filename, tempname, args):
     datafile = '{filename}_t{tempname}{suffix}.data'.format(filename=filename,tempname=tempname, suffix=args.data_suffix)
     dcdfile = '{filename}_t{tempname}{suffix}.dcd'.format(filename=filename,tempname=tempname,suffix=args.traj_suffix)f
     # u = mda.Universe('test_gel.data')
-    f1, f2, _ , _ = Analyze_file_info.get_profile_params(analysis_name)
+    f1, f2, _ , _ = parse_file_info.get_profile_params(analysis_name)
     # print(dcdfile)
     print("f1 = {f1}, f2={f2}".format(f1=f1, f2=f2))
     print('data',datafile)
@@ -386,7 +385,7 @@ def run_analysis(args):
         df['T'] = np.linspace(0.1, 1.1, 11)
 
         for tempname in temp_name_array:
-            temp = Analyze_file_info.get_temp_from_string(tempname)
+            temp = parse_file_info.get_temp_from_string(tempname)
             # q1, q2 = 1, 2
             q1, q2 = analyze_ci_condensation(filename, tempname, args)
             q1_array.append(q1)

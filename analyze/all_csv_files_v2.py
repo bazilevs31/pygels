@@ -3,9 +3,9 @@
 import numpy as np
 import pandas as pd
 import re, os, argparse, pickle, termcolor
-import Gel_dump_analysis
+import gel_dump_file
 
-import Analyze_file_info
+import parse_file_info
 import matplotlib.pyplot as plt
 # MATPLOTLIB_STYLE_USE = 'seaborn-poster'
 MATPLOTLIB_STYLE_USE = 'presentation-new'
@@ -162,26 +162,26 @@ def get_arrays_from_file(**kwargs):
     for temp_name in temp_name_array:
         f = myfile+'_t'+temp_name
         if os.path.exists(f+'.csv') and ('fl01_fr02_t01' not in f):
-            fl, fr, temp, gelname = Analyze_file_info.get_profile_params(f)
+            fl, fr, temp, gelname = parse_file_info.get_profile_params(f)
             temp_array.append(temp)
             f += '.csv'
             df = pd.read_csv(f)
 
-            phi_max, phi_min = Analyze_file_info.get_steps_from_profile(df['coord_phi'],df['phiz'], ax_dict['phiz'], fig_dict['phiz'], variable='phiz', name=f)
+            phi_max, phi_min = parse_file_info.get_steps_from_profile(df['coord_phi'],df['phiz'], ax_dict['phiz'], fig_dict['phiz'], variable='phiz', name=f)
 
             phi3_array_pure.append(np.abs(phi_max - phi_min)/(phi_unit_convert))
 
             if kwargs['press_normalize_ncount'] is False:
-                press_max, press_min = Analyze_file_info.get_steps_from_profile(df['Coord1'],df['Pxxyy'], ax_dict['Plat'], fig_dict['Plat'], variable='Plat', name=f)
+                press_max, press_min = parse_file_info.get_steps_from_profile(df['Coord1'],df['Pxxyy'], ax_dict['Plat'], fig_dict['Plat'], variable='Plat', name=f)
             elif kwargs['press_normalize_ncount'] is True:
-                press_max, press_min = Analyze_file_info.get_steps_from_profile(df['Coord1'],df['Pxxyy']/df['Ncount'], ax_dict['Plat'], fig_dict['Plat'], variable='Plat', name=f)
+                press_max, press_min = parse_file_info.get_steps_from_profile(df['Coord1'],df['Pxxyy']/df['Ncount'], ax_dict['Plat'], fig_dict['Plat'], variable='Plat', name=f)
             else:
                 raise NameError('there was no press_normalize_ncount')
 
             press_array.append(p_scale_factor*np.abs(press_max - press_min))
             # press_array.append((press_r-press_l))
 
-            concentration_max, concentration_min = Analyze_file_info.get_steps_from_profile(df['Coord1'],df['NumDensity_ci'], ax_dict['concentration'], fig_dict['concentration'], variable='concentration', name=f)
+            concentration_max, concentration_min = parse_file_info.get_steps_from_profile(df['Coord1'],df['NumDensity_ci'], ax_dict['concentration'], fig_dict['concentration'], variable='concentration', name=f)
             conc_divide_array.append(np.log(concentration_max/concentration_min))
 
             c2_array.append(concentration_max)

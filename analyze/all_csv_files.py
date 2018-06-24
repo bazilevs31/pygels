@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 import re, os, argparse, pickle, termcolor
-import Gel_dump_analysis
+import gel_dump_
 
 import Analyze_file_info
 import matplotlib.pyplot as plt
