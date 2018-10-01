@@ -263,6 +263,8 @@ class Mol():
         self.nprobes = 0
         self.number_of_chains = 0
         self.static_mid_boundary_flag = flag_mid_boundary
+
+        self.nmols = 0 # this will be a placeholder for the molecule number
         print( "------  creating nodes ------- ")
         self.create_nodes()
 
@@ -471,8 +473,10 @@ class Mol():
         _m_mons = 1.
         print( "nnodes", len(self.nodes))
         print( "nnodes", (self.nnodes))
-
-        all_nodes = self.nodes + self.termnodes
+        if self.flag_tether:
+            all_nodes = self.nodes + self.termnodes
+        else:
+            all_nodes = self.nodes
         for neigh in self.neighs:
 
             chaincount += 1
@@ -555,6 +559,7 @@ class Mol():
         _m_cions = 1.
         _m_coions = 1.
 
+
         shift_idx = self.nparticles
 
         self.ncions = self.nbackbone_left
@@ -575,12 +580,18 @@ class Mol():
         print("right,", self.nbackbone_right)
         # by the way
         # work on the types as well
+
+        # counter ions and coions will be in pairs and have the same molecule
+        # number so
+        # when they will be
+
         for i, x_i in enumerate(R1):
             self.cions[i] = Atom("H+")
             self.cions[i].q = 1.
             self.cions[i].position = x_i
             self.cions[i].idx = shift_idx + i + 1
             self.cions[i].ityp = 4
+            self.cions[i].chainnum = self.number_of_chains + 1 + i
 
         shift_idx += self.nbackbone_left
         for i, x_i in enumerate(R2):
@@ -589,6 +600,7 @@ class Mol():
             self.coions[i].position = x_i
             self.coions[i].idx = shift_idx + i + 1
             self.coions[i].ityp = 5
+            self.coions[i].chainnum = self.number_of_chains + 1 + i
 
         self.species.append(self.cions)
         self.nspecies.append(self.ncions)
@@ -868,8 +880,8 @@ def write_vmd(filename, length_scale, mol):
     viz_file = (filename).rsplit('.', 1)[0] + '.vmd'
     size_dict = dict()
     size_dict['mons'] = length_scale / 36. # r_cpk
-    size_dict['nodes'] = length_scale / 5.#5. # r_vdw
-    size_dict['termnodes'] = length_scale / 2. #/ 2. # r_vdw
+    size_dict['nodes'] = length_scale / 15.#5. # r_vdw
+    size_dict['termnodes'] = length_scale / 15. #/ 2. # r_vdw
     size_dict['anions'] = length_scale / 30. # r_salt
     size_dict['cations'] = length_scale / 30. # r_salt
     size_dict['cions'] = 3.5  # r_point
@@ -912,7 +924,8 @@ topo readlammpsdata {input_data} full waitfor all""".format(input_data=input_dat
         middle_string += """\n
             # {atom_type_name}
             mol modselect {ii} 0 name is "{ityp}"
-            mol modcolor {ii} 0 ColorID {col_type}
+            # mol modcolor {ii} 0 ColorID {col_type}
+            mol modcolor {ii} 0 charge
             mol modstyle {ii} 0 {viz_type} {r} {resolution} \n
             """.format(ii=i, ityp=atom_type_name, col_type=col_dict[atom_type_name],viz_type=viz_dict[atom_type_name],r=size_dict[atom_type_name], atom_type_name=atom_type_name, resolution=resolution)
     footer_string = """
